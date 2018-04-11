@@ -5,3 +5,5 @@ This application provides following features:-
 - Retrieves the information based on the location.
 - Compares media captured in different times.
 - Provides APIs or services to integrate into third party applications to upload or download media.
+
+We are making an andriod based application to support the above features. 
