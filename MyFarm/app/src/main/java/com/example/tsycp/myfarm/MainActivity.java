@@ -33,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
 
         User user = PrefUtil.getUser(this, PrefUtil.USER_SESSION);
 
-        greeting.setText(getResources().getString(R.string.greeting, user.getData().getFirstname()));
-        email.setText(user.getData().getEmail());
+        //greeting.setText(getResources().getString(R.string.greeting, user.getData().getFirstname()));
+        greeting.setText(getResources().getString(R.string.greeting,"Siyuan"));
+        //email.setText(user.getData().getEmail());
+        email.setText("tsy.cpp@gmail.com");
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override

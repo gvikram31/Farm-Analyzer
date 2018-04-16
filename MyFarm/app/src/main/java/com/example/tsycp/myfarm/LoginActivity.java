@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(retrofit2.Call call, retrofit2.Response response) {
                 User user = (User) response.body();
-                Log.d("User Information",(String)response.body() );
+                Log.v("User Information","NeiRongshi");
 
                 if(user != null) {
                     if(!user.isError()) {
@@ -116,7 +116,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(retrofit2.Call call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "An error occurred!", Toast.LENGTH_SHORT).show();
+                Log.v("User Information",t.getMessage());
+                Toast.makeText(LoginActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
