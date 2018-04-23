@@ -26,7 +26,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstnameText;
     private EditText lastnameText;
-    private EditText emailText;
+    private EditText usernameText;
     private EditText passwordText;
 
     private Button btnRegister;
@@ -47,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         firstnameText = (EditText) findViewById(R.id.firstname);
         lastnameText = (EditText) findViewById(R.id.lastname);
-        emailText = (EditText) findViewById(R.id.email);
+        usernameText = (EditText) findViewById(R.id.username);
         passwordText = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btn_register);
 
@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
     void registerAct() {
         String firstname = firstnameText.getText().toString();
         String lastname = lastnameText.getText().toString();
-        String email = emailText.getText().toString();
+        String username = usernameText.getText().toString();
         String password = passwordText.getText().toString();
 
         if(TextUtils.isEmpty(firstname)) {
@@ -82,8 +82,8 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if(TextUtils.isEmpty(email)) {
-            firstnameText.setError("Email cannot be empty !");
+        if(TextUtils.isEmpty(username)) {
+            firstnameText.setError("Username cannot be empty !");
             return;
         }
 
@@ -93,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         registerService = new RegisterService(this);
-        registerService.doRegister(firstname, lastname, email, password, new Callback() {
+        registerService.doRegister(firstname, lastname, username, password, new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 BaseResponse baseResponse = (BaseResponse) response.body();

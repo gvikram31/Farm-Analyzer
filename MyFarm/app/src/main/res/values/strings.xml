@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">AndroidLoginAndRegistration</string>
+    <string name="app_name">MyFarm</string>
 
-    <string name="email">Email</string>
+    <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
@@ -10,6 +10,7 @@
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="logout">Logout</string>
+    <string name="upload">Upload</string>
 
     <string name="greeting">Hi, %s :)</string>
     <string name="title">MyFarm</string>
