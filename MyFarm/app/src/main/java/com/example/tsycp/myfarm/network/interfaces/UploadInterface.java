@@ -18,7 +18,7 @@ public interface UploadInterface {
     @Multipart
     @PUT(Config.API_UPLOAD)
     Call<BaseResponse> upload(
-            @Part("image") MultipartBody.Part image,
+            @Part MultipartBody.Part image,
             @Part("latitude") RequestBody latitude,
             @Part("longitude") RequestBody longitude);
 

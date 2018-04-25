@@ -70,12 +70,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.v("Image Information","Click Upload! Running selectImage");
                 selectImage();
-                //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                double longitude = 1;//location.getLongitude();
-                double latitude = 1;//location.getLatitude();
-                Log.v("Image Information","Running uploadImage");
-                uploadImage(image,Double.toString(latitude),Double.toString(longitude));
             }
         });
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -97,23 +91,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v("Image Information",Integer.toString(resultCode));
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            String[] proj = {MediaStore.Images.Media.DATA};
-            Cursor actualimagecursor = managedQuery(uri, proj, null, null, null);
-            int actual_image_column_index = actualimagecursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            actualimagecursor.moveToFirst();
-            String img_path = actualimagecursor.getString(actual_image_column_index);
-            image = new File(img_path);
+            Log.v("Image Information",uri.toString());
+            image = new File(uri.getPath());
             Log.v("Image Information",image.toString());
             Toast.makeText(MainActivity.this, image.toString(), Toast.LENGTH_SHORT).show();
+            //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            double longitude = 1;//location.getLongitude();
+            double latitude = 1;//location.getLatitude();
+            Log.v("Image Information","Running uploadImage");
+            uploadImage(uri,image, Double.toString(latitude),Double.toString(longitude));
         }
     }
 
-    void uploadImage(File image, String lat, String lon){
-        RequestBody requestFile  = RequestBody.create(MediaType.parse("multipart/form-data"), image);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile );
+    private void uploadImage(Uri uri, File image, String lat, String lon){
+        RequestBody requestFile  = RequestBody.create(MediaType.parse(getContentResolver().getType(uri)), image);
+        Log.v("Image Information",image.getName());
+        String filename = image.getName();
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image", "hahaha", requestFile );
         RequestBody latitude = RequestBody.create(MediaType.parse("multipart/form-data"), lat);
         RequestBody longitude = RequestBody.create(MediaType.parse("multipart/form-data"), lon);
         uploadService = new UploadService(this);
