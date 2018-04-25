@@ -10,7 +10,10 @@ import android.location.LocationManager;
 import com.google.android.gms.location.LocationServices;
 
 import android.net.Uri;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,9 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private UploadService uploadService;
     private File image;
 
+
+
     public static void start(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
+
     }
 
     @Override
@@ -69,7 +75,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.v("Image Information","Click Upload! Running selectImage");
-                selectImage();
+                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            1);
+                }
+                else {
+                    selectImage();
+                }
             }
         });
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -90,27 +106,57 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+
+        if (requestCode == 1)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                selectImage();
+            } else
+            {
+                // Permission Denied
+                Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            Log.v("Image Information",uri.toString());
-            image = new File(uri.getPath());
-            Log.v("Image Information",image.toString());
-            Toast.makeText(MainActivity.this, image.toString(), Toast.LENGTH_SHORT).show();
-            //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            double longitude = 1;//location.getLongitude();
-            double latitude = 1;//location.getLatitude();
-            Log.v("Image Information","Running uploadImage");
-            uploadImage(uri,image, Double.toString(latitude),Double.toString(longitude));
+                Uri uri = data.getData();
+                String wholeID = DocumentsContract.getDocumentId(uri);
+                String id = wholeID.split(":")[1];
+                String[] column = { MediaStore.Images.Media.DATA };
+                String sel = MediaStore.Images.Media._ID + "=?";
+                Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, column,
+                        sel, new String[] { id }, null);
+                String filePath = "";
+                int columnIndex = cursor.getColumnIndex(column[0]);
+                if (cursor.moveToFirst()) {
+                    filePath = cursor.getString(columnIndex);
+                }
+                cursor.close();
+                Log.v("Image Information",filePath.toString());
+                image = new File(filePath);
+                Log.v("Image Information",image.toString());
+                //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                double longitude = 1;//location.getLongitude();
+                double latitude = 1;//location.getLatitude();
+                Log.v("Image Information","Running uploadImage");
+                uploadImage(uri,image, Double.toString(latitude),Double.toString(longitude));
         }
     }
 
+
     private void uploadImage(Uri uri, File image, String lat, String lon){
         RequestBody requestFile  = RequestBody.create(MediaType.parse(getContentResolver().getType(uri)), image);
-        Log.v("Image Information",image.getName());
-        String filename = image.getName();
-        MultipartBody.Part body = MultipartBody.Part.createFormData("image", "hahaha", requestFile );
+        Log.v("Image Information",requestFile.toString());
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile );
         RequestBody latitude = RequestBody.create(MediaType.parse("multipart/form-data"), lat);
         RequestBody longitude = RequestBody.create(MediaType.parse("multipart/form-data"), lon);
         uploadService = new UploadService(this);
@@ -130,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call call, Throwable t) {
-                Toast.makeText(MainActivity.this, "An error occurred!", Toast.LENGTH_SHORT).show();
+                Log.v("error Information",t.getMessage());
+                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
