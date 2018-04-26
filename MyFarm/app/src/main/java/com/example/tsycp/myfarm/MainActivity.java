@@ -16,9 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,9 @@ import com.example.tsycp.myfarm.network.UploadService;
 import com.example.tsycp.myfarm.util.PrefUtil;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -40,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView greeting;
     private TextView username;
+    private EditText latitudeText;
+    private EditText longitudeText;
+    private EditText zoneText;
+    private EditText timestampText;
     private Button btnLogout;
     private Button btnUpload;
     private static final int MY_PERMISSION_ACCESS_COARSE_LOCATION = 11;
@@ -63,8 +72,13 @@ public class MainActivity extends AppCompatActivity {
 
         greeting = (TextView) findViewById(R.id.greeting);
         username = (TextView) findViewById(R.id.username);
+        latitudeText = (EditText) findViewById(R.id.latitude);
+        longitudeText = (EditText) findViewById(R.id.longitude);
+        zoneText = (EditText) findViewById(R.id.zone);
+        timestampText = (EditText) findViewById(R.id.timestamp);
         btnUpload = (Button) findViewById(R.id.btn_upload);
         btnLogout = (Button) findViewById(R.id.btn_logout);
+
 
         User user = PrefUtil.getUser(this, PrefUtil.USER_SESSION);
 
@@ -99,6 +113,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void selectImage(){
+        String latitude = latitudeText.getText().toString();
+        String longitude = longitudeText.getText().toString();
+        String zone = zoneText.getText().toString();
+        String timestamp = timestampText.getText().toString();
+
+        if(TextUtils.isEmpty(latitude)) {
+            latitudeText.setError("latitude cannot be empty !");
+            return;
+        }
+        if(TextUtils.isEmpty(longitude)) {
+            latitudeText.setError("longitude cannot be empty !");
+            return;
+        }
+        if(TextUtils.isEmpty(zone)) {
+            latitudeText.setError("zone cannot be empty !");
+            return;
+        }
+        if(TextUtils.isEmpty(timestamp)) {
+            latitudeText.setError("timestamp cannot be empty !");
+            return;
+        }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
@@ -140,27 +175,32 @@ public class MainActivity extends AppCompatActivity {
                     filePath = cursor.getString(columnIndex);
                 }
                 cursor.close();
-                Log.v("Image Information",filePath.toString());
                 image = new File(filePath);
-                Log.v("Image Information",image.toString());
                 //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
                 //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                double longitude = 1;//location.getLongitude();
-                double latitude = 1;//location.getLatitude();
-                Log.v("Image Information","Running uploadImage");
-                uploadImage(uri,image, Double.toString(latitude),Double.toString(longitude));
+                String latitude = latitudeText.getText().toString();
+                String longitude = longitudeText.getText().toString();
+                String zone = zoneText.getText().toString();
+                String timestamp = timestampText.getText().toString();
+                Log.v("latitude Information",latitude);
+                Log.v("longitude Information",longitude);
+                Log.v("zone Information",zone);
+                Log.v("timestamp Information",timestamp);
+                uploadImage(uri,image, latitude,longitude, zone, timestamp);
         }
     }
 
 
-    private void uploadImage(Uri uri, File image, String lat, String lon){
-        RequestBody requestFile  = RequestBody.create(MediaType.parse(getContentResolver().getType(uri)), image);
-        Log.v("Image Information",requestFile.toString());
+    private void uploadImage(Uri uri, File image, String lat, String lon,String zo, String tim){
+        Log.v("Content Type", getContentResolver().getType(uri));
+        RequestBody requestFile  = RequestBody.create(MediaType.parse("multipart/form-data"), image);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", image.getName(), requestFile );
         RequestBody latitude = RequestBody.create(MediaType.parse("multipart/form-data"), lat);
         RequestBody longitude = RequestBody.create(MediaType.parse("multipart/form-data"), lon);
+        RequestBody zone = RequestBody.create(MediaType.parse("multipart/form-data"), zo);
+        RequestBody timestamp = RequestBody.create(MediaType.parse("multipart/form-data"), tim);
         uploadService = new UploadService(this);
-        uploadService.doUpload(body, latitude,longitude,new retrofit2.Callback(){
+        uploadService.doUpload(body,latitude,longitude,zone,timestamp,new retrofit2.Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 BaseResponse baseResponse = (BaseResponse) response.body();
@@ -173,13 +213,13 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, baseResponse.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call call, Throwable t) {
                 Log.v("error Information",t.getMessage());
                 Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
     void logoutAct() {
         PrefUtil.clear(this);

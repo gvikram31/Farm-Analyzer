@@ -19,8 +19,8 @@ public class UploadService {
                 .create(UploadInterface.class);
     }
 
-    public void doUpload(MultipartBody.Part image, RequestBody latitude, RequestBody longitude, Callback callback) {
-        uploadInterface.upload(image, latitude, longitude).enqueue(callback);
+    public void doUpload(MultipartBody.Part image, RequestBody latitude, RequestBody longitude, RequestBody zone, RequestBody timestamp, Callback callback) {
+        uploadInterface.upload(image, latitude, longitude, zone, timestamp).enqueue(callback);
     }
 
 }

@@ -20,6 +20,8 @@ public interface UploadInterface {
     Call<BaseResponse> upload(
             @Part MultipartBody.Part image,
             @Part("latitude") RequestBody latitude,
-            @Part("longitude") RequestBody longitude);
+            @Part("longitude") RequestBody longitude,
+            @Part("zone") RequestBody zone,
+            @Part("timestamp") RequestBody timestamp);
 
 }
