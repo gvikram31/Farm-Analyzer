@@ -6,17 +6,6 @@ from osgeo import gdal
 from osgeo import gdal_array
 import matplotlib.pyplot as plt
 # Import the NumPy module
-
-#aim of this is to test some of the NDVI files and visualize them
-
-# # Array of 0 - 9
-# x = np.arange(10)
-# # 10 random numbers, between 0 and 10
-# y = np.random.randint(0, 10, size=10)
-
-# # plot them as lines
-# plt.plot(x, y)
-
 # Open a GDAL dataset
 dataset = gdal.Open('sample_NDVI1.gtif', gdal.GA_ReadOnly)
 
