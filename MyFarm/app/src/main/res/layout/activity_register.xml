@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:windowSoftInputMode="adjustResize"
-    android:background="@color/colorPrimary"
+    android:background="@drawable/crops"
     tools:context="com.example.tsycp.myfarm.RegisterActivity">
 
     <android.support.v7.widget.Toolbar
@@ -53,11 +53,11 @@
             android:theme="@style/WhiteFocus" />
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:hint="@string/email"
+            android:hint="@string/username"
             android:textColor="@color/colorWhite"
             android:textColorHint="@color/colorWhite"
             android:ems="10"

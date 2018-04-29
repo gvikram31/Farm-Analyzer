@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tsycp.myfarm">
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -20,15 +24,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RegisterActivity"
             android:label="@string/register"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan"/>
-
-        <activity android:name=".MainActivity" />
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ResultsActivity"
+            android:label="@string/title_activity_results"
+            android:theme="@style/AppTheme"></activity>
     </application>
-
 
 </manifest>
