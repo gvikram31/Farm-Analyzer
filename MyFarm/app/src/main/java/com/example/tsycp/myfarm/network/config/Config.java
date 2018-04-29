@@ -6,5 +6,6 @@ public class Config {
     public static final String API_LOGIN = BASE_URL + "/user";
     public static final String API_REGISTER = BASE_URL + "/register";
     public static final String API_UPLOAD = BASE_URL + "/upload";
+    public static final String API_SEARCH = BASE_URL + "/search";
 
 }

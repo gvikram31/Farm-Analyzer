@@ -2,11 +2,15 @@ package com.example.tsycp.myfarm;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
+
+import com.example.tsycp.myfarm.model.Image;
+import com.example.tsycp.myfarm.network.SearchService;
 import com.google.android.gms.location.LocationServices;
 
 import android.net.Uri;
@@ -14,6 +18,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,8 +33,11 @@ import com.example.tsycp.myfarm.model.BaseResponse;
 import com.example.tsycp.myfarm.model.User;
 import com.example.tsycp.myfarm.network.UploadService;
 import com.example.tsycp.myfarm.util.PrefUtil;
+import com.example.tsycp.myfarm.model.Image;
+import com.google.gson.Gson;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,17 +59,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText timestampText;
     private Button btnLogout;
     private Button btnUpload;
+    private Button btnSearch;
     private static final int MY_PERMISSION_ACCESS_COARSE_LOCATION = 11;
 
     private UploadService uploadService;
+    private SearchService searchService;
     private File image;
-
 
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
-
     }
 
     @Override
@@ -78,12 +86,21 @@ public class MainActivity extends AppCompatActivity {
         timestampText = (EditText) findViewById(R.id.timestamp);
         btnUpload = (Button) findViewById(R.id.btn_upload);
         btnLogout = (Button) findViewById(R.id.btn_logout);
+        btnSearch = (Button) findViewById(R.id.btn_search);
 
 
         User user = PrefUtil.getUser(this, PrefUtil.USER_SESSION);
 
         greeting.setText(getResources().getString(R.string.greeting, user.getData().getFirstname()));
         username.setText(user.getData().getUsername());
+
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchImage();
+            }
+        });
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +129,66 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    void searchImage(){
+        String latitude = latitudeText.getText().toString();
+        String longitude = longitudeText.getText().toString();
+        String zone = zoneText.getText().toString();
+        String timestamp = timestampText.getText().toString();
+
+        if(TextUtils.isEmpty(latitude) && TextUtils.isEmpty(longitude) && TextUtils.isEmpty(zone) && TextUtils.isEmpty(timestamp)){
+            Toast.makeText(MainActivity.this, "You should set at least one filter!", Toast.LENGTH_SHORT).show();
+        }
+
+        searchService = new SearchService(this);
+        searchService.doSearch(latitude, longitude, zone, timestamp, new Callback() {
+            @Override
+            public void onResponse(Call call, retrofit2.Response response) {
+                Image tmp = (Image) response.body();
+
+
+                if(tmp != null){
+                    if(!tmp.isError()){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setIcon(android.R.drawable.alert_dark_frame);
+                        builder.setTitle("Result is " + tmp.getMessage());
+                        builder.setMessage(tmp.getData().getImagename() + "\nLatitude is " + tmp.getData().getLatitude() + "\nLongitude is " + tmp.getData().getLongitude() + "\nZone is " + tmp.getData().getZone() + "\nTime is " + tmp.getData().getTimestamp());
+
+                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "Test1", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+//                        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                Toast.makeText(MainActivity.this, "Finish Searching", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+
+                        AlertDialog ad = builder.create();
+                        ad.show();
+                    }
+                    else{
+                        Toast.makeText(MainActivity.this, tmp.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "TMP is NULL!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Toast.makeText(MainActivity.this, "An error occurred!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     void selectImage(){
         String latitude = latitudeText.getText().toString();
         String longitude = longitudeText.getText().toString();
@@ -123,15 +200,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(TextUtils.isEmpty(longitude)) {
-            latitudeText.setError("longitude cannot be empty !");
+            longitudeText.setError("longitude cannot be empty !");
             return;
         }
         if(TextUtils.isEmpty(zone)) {
-            latitudeText.setError("zone cannot be empty !");
+            zoneText.setError("zone cannot be empty !");
             return;
         }
         if(TextUtils.isEmpty(timestamp)) {
-            latitudeText.setError("timestamp cannot be empty !");
+            timestampText.setError("timestamp cannot be empty !");
             return;
         }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

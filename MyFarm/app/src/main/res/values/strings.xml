@@ -17,5 +17,6 @@
     <string name="Timestamp">Time</string>
     <string name="greeting">Hi, %s :)</string>
     <string name="title">MyFarm</string>
+    <string name="search">Search</string>
 
 </resources>
