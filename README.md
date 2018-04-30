@@ -9,4 +9,7 @@ This application provides following features:-
 # NDVI
 Normalized Difference Vegetation Index (NDVI) quantifies vegetation by measuring the difference between near-infrared (which vegetation strongly reflects) and red light (which vegetation absorbs). NDVI always ranges from -1 to +1. But there isn’t a distinct boundary for each type of land cover.
 
-
+# Navigation:
+ - NDVI folder contains NDVI images decode scripts. Most of these scripts decodes the NDVI and provides NDVI indexs and plots.
+ - MyFarm folder contains andriod application files. 
+ 
