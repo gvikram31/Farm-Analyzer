@@ -151,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setIcon(android.R.drawable.alert_dark_frame);
                         builder.setTitle("Result is " + tmp.getMessage());
-                        builder.setMessage(tmp.getData().getImagename() + "\nLatitude is " + tmp.getData().getLatitude() + "\nLongitude is " + tmp.getData().getLongitude() + "\nZone is " + tmp.getData().getZone() + "\nTime is " + tmp.getData().getTimestamp());
+                        final String url = tmp.getData().getImagename();
+                        String name = tmp.getData().getImagename().substring(tmp.getData().getImagename().lastIndexOf("/")+1,tmp.getData().getImagename().length());
+                        builder.setMessage("File name is :" + name + "\nLatitude is " + tmp.getData().getLatitude() + "\nLongitude is " + tmp.getData().getLongitude() + "\nZone is " + tmp.getData().getZone() + "\nTime is " + tmp.getData().getTimestamp());
 
                         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
@@ -161,12 +163,13 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-//                        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                Toast.makeText(MainActivity.this, "Finish Searching", Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
+                        builder.setNegativeButton("Show", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent= new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+                                startActivity(intent);
+                            }
+                        });
 
                         AlertDialog ad = builder.create();
                         ad.show();
